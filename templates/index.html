@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>LLM AI Chat Application</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #eef2f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .app {
+            width: 100%;
+            max-width: 1100px;
+            height: 720px;
+            background: white;
+            border-radius: 18px;
+            overflow: hidden;
+            display: flex;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        /* Sidebar */
+
+        .sidebar {
+            width: 280px;
+            background: #172033;
+            color: white;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #b8c1d1;
+            font-size: 13px;
+            line-height: 1.5;
+            margin-bottom: 28px;
+        }
+
+        .sidebar-section {
+            margin-bottom: 20px;
+        }
+
+        .sidebar-label {
+            display: block;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        #instructions {
+            width: 100%;
+            height: 130px;
+            resize: none;
+            border: none;
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 13px;
+            outline: none;
+            background: #ffffff;
+            color: #172033;
+        }
+
+        #instructions::placeholder {
+            color: #8a94a6;
+        }
+
+        .new-chat-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: white;
+            color: #172033;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .new-chat-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .features {
+            margin-top: auto;
+            color: #b8c1d1;
+            font-size: 12px;
+            line-height: 1.8;
+        }
+
+        /* Main */
+
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .header {
+            padding: 20px 25px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-title h1 {
+            font-size: 22px;
+            color: #172033;
+            margin-bottom: 4px;
+        }
+
+        .header-title p {
+            font-size: 12px;
+            color: #667085;
+        }
+
+        .mode-badge {
+            padding: 8px 12px;
+            border-radius: 20px;
+            background: #eef2ff;
+            color: #3b4cca;
+            font-size: 12px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        /* Chat */
+
+        .chat-box {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            background: #fbfcfe;
+        }
+
+        .welcome {
+            text-align: center;
+            margin-top: 170px;
+            color: #667085;
+        }
+
+        .welcome-icon {
+            font-size: 42px;
+            margin-bottom: 12px;
+        }
+
+        .welcome h2 {
+            color: #172033;
+            margin-bottom: 8px;
+        }
+
+        .welcome p {
+            font-size: 14px;
+        }
+
+        .message {
+            max-width: 78%;
+            padding: 13px 16px;
+            margin-bottom: 15px;
+            border-radius: 13px;
+            line-height: 1.55;
+            font-size: 14px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .user {
+            margin-left: auto;
+            background: #172033;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .assistant {
+            margin-right: auto;
+            background: #e9eef5;
+            color: #172033;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message-label {
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            opacity: 0.7;
+        }
+
+        /* Input */
+
+        .input-area {
+            padding: 18px 25px;
+            border-top: 1px solid #e5e7eb;
+            background: white;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        #messageInput {
+            flex: 1;
+            min-width: 0;
+            padding: 14px 15px;
+            border: 1px solid #d0d5dd;
+            border-radius: 10px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        #messageInput:focus {
+            border-color: #667085;
+        }
+
+        #sendButton {
+            padding: 0 23px;
+            border: none;
+            border-radius: 10px;
+            background: #172033;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        #sendButton:hover {
+            opacity: 0.9;
+        }
+
+        #sendButton:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .status {
+            margin-top: 8px;
+            font-size: 11px;
+            color: #667085;
+        }
+
+        /* Scrollbar */
+
+        .chat-box::-webkit-scrollbar {
+            width: 7px;
+        }
+
+        .chat-box::-webkit-scrollbar-thumb {
+            background: #cbd2dc;
+            border-radius: 10px;
+        }
+
+        /* Mobile */
+
+        @media (max-width: 750px) {
+
+            body {
+                padding: 0;
+            }
+
+            .app {
+                height: 100vh;
+                border-radius: 0;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .header {
+                padding: 16px;
+            }
+
+            .header-title h1 {
+                font-size: 18px;
+            }
+
+            .mode-badge {
+                font-size: 10px;
+                padding: 7px 9px;
+            }
+
+            .chat-box {
+                padding: 16px;
+            }
+
+            .message {
+                max-width: 90%;
+            }
+
+            .input-area {
+                padding: 12px 16px;
+            }
+
+            #sendButton {
+                padding: 0 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- Sidebar -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            🤖 AI Assistant
+        </div>
+
+        <div class="subtitle">
+            LLM API & Application Development
+        </div>
+
+        <div class="sidebar-section">
+
+            <label class="sidebar-label" for="instructions">
+                Custom Instructions
+            </label>
+
+            <textarea
+                id="instructions"
+                placeholder="Example: Explain everything in simple English and give examples."
+            ></textarea>
+
+        </div>
+
+        <button
+            class="new-chat-btn"
+            onclick="newChat()"
+        >
+            + New Chat
+        </button>
+
+        <div class="features">
+            ✓ Conversation History<br>
+            ✓ Custom Instructions<br>
+            ✓ Error Handling<br>
+            ✓ Token Usage Tracking<br>
+            ✓ Free Demo Mode
+        </div>
+
+    </aside>
+
+
+    <!-- Main Application -->
+
+    <main class="main">
+
+        <!-- Header -->
+
+        <header class="header">
+
+            <div class="header-title">
+
+                <h1>
+                    LLM AI Chat Application
+                </h1>
+
+                <p>
+                    Python • Flask • LLM API
+                </p>
+
+            </div>
+
+            <div
+                class="mode-badge"
+                id="modeBadge"
+            >
+                Free Demo Mode
+            </div>
+
+        </header>
+
+
+        <!-- Chat Area -->
+
+        <section
+            class="chat-box"
+            id="chatBox"
+        >
+
+            <div
+                class="welcome"
+                id="welcome"
+            >
+
+                <div class="welcome-icon">
+                    🤖
+                </div>
+
+                <h2>
+                    Welcome!
+                </h2>
+
+                <p>
+                    Ask a question to start your AI conversation.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- Input Area -->
+
+        <section class="input-area">
+
+            <div class="input-row">
+
+                <input
+                    type="text"
+                    id="messageInput"
+                    placeholder="Type your message..."
+                    autocomplete="off"
+                >
+
+                <button
+                    id="sendButton"
+                    onclick="sendMessage()"
+                >
+                    Send
+                </button>
+
+            </div>
+
+            <div
+                class="status"
+                id="status"
+            >
+                Ready • Free Demo Mode
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<script>
+
+    // Conversation history
+    let conversationHistory = [];
+
+
+    // Add message to chat
+    function addMessage(role, content) {
+
+        const chatBox =
+            document.getElementById("chatBox");
+
+        const welcome =
+            document.getElementById("welcome");
+
+        if (welcome) {
+            welcome.remove();
+        }
+
+
+        const messageDiv =
+            document.createElement("div");
+
+        messageDiv.className =
+            "message " + role;
+
+
+        const label =
+            document.createElement("div");
+
+        label.className =
+            "message-label";
+
+        label.textContent =
+            role === "user"
+                ? "You"
+                : "AI Assistant";
+
+
+        const text =
+            document.createElement("div");
+
+        text.textContent = content;
+
+
+        messageDiv.appendChild(label);
+
+        messageDiv.appendChild(text);
+
+        chatBox.appendChild(messageDiv);
+
+
+        chatBox.scrollTop =
+            chatBox.scrollHeight;
+    }
+
+
+    // Send message
+    async function sendMessage() {
+
+        const input =
+            document.getElementById("messageInput");
+
+        const button =
+            document.getElementById("sendButton");
+
+        const status =
+            document.getElementById("status");
+
+        const modeBadge =
+            document.getElementById("modeBadge");
+
+        const instructions =
+            document
+                .getElementById("instructions")
+                .value
+                .trim();
+
+        const message =
+            input.value.trim();
+
+
+        if (!message) {
+            return;
+        }
+
+
+        // Display user message
+        addMessage(
+            "user",
+            message
+        );
+
+
+        input.value = "";
+
+        button.disabled = true;
+
+        status.textContent =
+            "AI is processing your request...";
+
+
+        try {
+
+            const response =
+                await fetch("/api/chat", {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+
+                        message: message,
+
+                        history:
+                            conversationHistory,
+
+                        instructions:
+                            instructions
+
+                    })
+
+                });
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.error ||
+                    "Request failed"
+                );
+
+            }
+
+
+            // Display AI response
+            addMessage(
+                "assistant",
+                data.reply
+            );
+
+
+            // Save conversation
+            conversationHistory.push({
+
+                role: "user",
+
+                content: message
+
+            });
+
+
+            conversationHistory.push({
+
+                role: "assistant",
+
+                content: data.reply
+
+            });
+
+
+            // Update mode
+            if (data.mode) {
+
+                modeBadge.textContent =
+                    data.mode;
+
+            }
+
+
+            // Update token information
+            if (data.usage) {
+
+                status.textContent =
+                    data.mode +
+                    " • Total tokens: " +
+                    data.usage.total_tokens;
+
+            } else {
+
+                status.textContent =
+                    "Response generated";
+
+            }
+
+
+        } catch (error) {
+
+            addMessage(
+                "assistant",
+                "Error: " +
+                error.message
+            );
+
+
+            status.textContent =
+                "Something went wrong";
+
+
+        } finally {
+
+            button.disabled = false;
+
+            input.focus();
+
+        }
+
+    }
+
+
+    // Start a new chat
+    function newChat() {
+
+        conversationHistory = [];
+
+
+        document
+            .getElementById("chatBox")
+            .innerHTML = `
+
+                <div
+                    class="welcome"
+                    id="welcome"
+                >
+
+                    <div class="welcome-icon">
+                        🤖
+                    </div>
+
+                    <h2>
+                        Welcome!
+                    </h2>
+
+                    <p>
+                        Ask a question to start
+                        your AI conversation.
+                    </p>
+
+                </div>
+
+            `;
+
+
+        document
+            .getElementById("status")
+            .textContent =
+                "New chat started • Free Demo Mode";
+
+
+        document
+            .getElementById("modeBadge")
+            .textContent =
+                "Free Demo Mode";
+
+
+        document
+            .getElementById("messageInput")
+            .focus();
+
+    }
+
+
+    // Press Enter to send
+    document
+        .getElementById("messageInput")
+        .addEventListener(
+            "keydown",
+            function(event) {
+
+                if (
+                    event.key === "Enter" &&
+                    !event.shiftKey
+                ) {
+
+                    event.preventDefault();
+
+                    sendMessage();
+
+                }
+
+            }
+        );
+
+</script>
+
+</body>
+</html>
